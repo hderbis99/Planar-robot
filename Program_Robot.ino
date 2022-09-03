@@ -65,6 +65,14 @@ class Control
   private:
   int current = 0; //Zmienna przechowująca aktualny czas
   int lastmillis = 0; // Zmienna przechowująca ostatni zmierzony czas
+
+  int lastmillis2 = 0; 
+  int lastmillis3 = 0; 
+  int lastmillis4 = 0; 
+  int lastmillis5 = 0; 
+
+  bool parse1 = true;
+  bool parse2 = true;
   
   public:
 
@@ -216,6 +224,35 @@ class Control
         EEPROM.put(adres[1], S2_axis_degree);
         EEPROM.put(adres[2], S3_axis_degree);
         EEPROM.put(adres[3], S4_axis_degree);
+
+        if(current - lastmillis2 >= 100 && parse1 == true && parse2 == true)
+        {
+        String servo1_print = "one:" + String(S1_axis_degree);
+        Serial.println(servo1_print); // Wyświetlenie poszczególnych pozycji w porcie szeregowym
+        parse1 = false;
+        lastmillis2 = millis();
+        }
+        if(current - lastmillis3 >= 200 && parse1 == false && parse2 == true)
+        {
+        String servo2_print = "two:" + String(S2_axis_degree);
+        Serial.println(servo2_print);
+        parse2 = false;
+        lastmillis3 = millis();
+        }
+        if(current - lastmillis4 >= 300 && parse1 == false && parse2 == false)
+        {
+        String servo3_print = "three:" + String(S3_axis_degree);
+        Serial.println(servo3_print);
+        parse1 = true;
+        lastmillis4 = millis();
+        }
+        if(current - lastmillis5 >= 400 && parse1 == true && parse2 == false)
+        {
+        String servo4_print = "four:" + String(S4_axis_degree);
+        Serial.println(servo4_print);
+        parse2 = true;
+        lastmillis5 = millis();
+        }
     }
     else
     {
