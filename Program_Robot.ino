@@ -65,6 +65,17 @@ class Control
   private:
   int current = 0; //Zmienna przechowująca aktualny czas
   int lastmillis = 0; // Zmienna przechowująca ostatni zmierzony czas
+
+  int lastmillis2 = 0; 
+  int lastmillis3 = 0; 
+  int lastmillis4 = 0; 
+  int lastmillis5 = 0;
+  int lastmillis6 = 0; 
+
+  bool parse1 = true;
+  bool parse2 = true;
+
+  int steps = 1;
   
   public:
 
@@ -79,35 +90,35 @@ class Control
   
   if(expander1.digitalRead(0) == 1)
   {
-    diode.diode1_ON();
+    diode.diode4_ON();
   }
   if(expander1.digitalRead(0) == 0)
   {
-    diode.diode1_OFF();
+    diode.diode4_OFF();
   }
   if(expander1.digitalRead(1) == 1)
   {
-    diode.diode2_ON();
+    diode.diode3_ON();
   }
   if(expander1.digitalRead(1) == 0)
   {
-    diode.diode2_OFF();
+    diode.diode3_OFF();
   }
   if(expander1.digitalRead(2) == 1)
   {
-    diode.diode3_ON();
+    diode.diode2_ON();
   }
   if(expander1.digitalRead(2) == 0)
   {
-    diode.diode3_OFF();
+    diode.diode2_OFF();
   }
   if(expander1.digitalRead(3) == 1)
   {
-    diode.diode4_ON();
+    diode.diode1_ON();
   }
   if(expander1.digitalRead(3) == 0)
   {
-    diode.diode4_OFF();
+    diode.diode1_OFF();
   }
 }
 
@@ -116,42 +127,93 @@ class Control
     if(expander1.digitalRead(0) == 0 && expander1.digitalRead(1) == 0 && expander1.digitalRead(2) == 0 && expander1.digitalRead(3) == 0)
     {
       current = millis();
-      if(current - lastmillis >=40)
+      if(current - lastmillis >=30)
       {
         int right_joystick_x_value = analogRead(right_joystick_x); // Zmienne przechowujące zczytaną pozycję po wychyleniu joystick'a
         int right_joystick_y_value = analogRead(right_joystick_y); 
+        
+        if(right_joystick_x_value < 340) S1_axis_degree -=steps;      
+        else if(right_joystick_x_value > 680) S1_axis_degree +=steps; 
 
-        if(right_joystick_x_value < 340) S1_axis_degree -=5;      
-        else if(right_joystick_x_value > 680) S1_axis_degree +=5; 
-
-        if(right_joystick_y_value < 340) S4_axis_degree -=5;
-        else if(right_joystick_y_value > 680) S4_axis_degree +=5;
+        if(right_joystick_y_value < 340) S4_axis_degree -=steps;
+        else if(right_joystick_y_value > 680) S4_axis_degree +=steps;
 
         if(expander2.digitalRead(0) == LOW) 
         {
-          S2_axis_degree+=5;
+          S2_axis_degree+=steps;
         }
         if(expander2.digitalRead(1) == LOW)
         {
-          S2_axis_degree-=5;
+          S2_axis_degree-=steps;
         }
         if(expander2.digitalRead(2) == LOW)
         {
-          S3_axis_degree+=5;
+          S3_axis_degree+=steps;
         }
         if(expander2.digitalRead(3) == LOW)
         {
-          S3_axis_degree-=5;
+          S3_axis_degree-=steps;
         }
-        basePosition_1(S1_axis_degree);      
-        basePosition_2(S2_axis_degree); 
-        basePosition_2(S3_axis_degree); 
-        basePosition_2(S4_axis_degree);                                                       
-    
+        if(expander2.digitalRead(0) == LOW && expander2.digitalRead(1) == LOW) 
+        {
+          //Servo1
+        if(S1_axis_degree < 90)
+        {
+          S1_axis_degree +=steps;
+        }
+        if(S1_axis_degree > 90)
+        {
+          S1_axis_degree-=steps;
+        }
+        if(S1_axis_degree == 90)
+        {
+          S1_axis_degree +=0;
+        }
+          //Servo2
+        if(S2_axis_degree < 60)
+        {
+          S2_axis_degree +=steps;
+        }
+        if(S2_axis_degree > 60)
+        {
+          S2_axis_degree-=steps;
+        }
+        if(S2_axis_degree == 60)
+        {
+          S2_axis_degree +=0;
+        }
+          //Servo3
+        if(S3_axis_degree < 60)
+        {
+          S3_axis_degree +=steps;
+        }
+        if(S3_axis_degree > 60)
+        {
+          S3_axis_degree-=steps;
+        }
+        if(S3_axis_degree == 60)
+        {
+          S3_axis_degree +=0;
+        }
+          //Servo4   
+        if(S4_axis_degree < 100)
+        {
+          S4_axis_degree +=steps;
+        }
+        if(S4_axis_degree > 100)
+        {
+          S4_axis_degree-=steps;
+        }
+        if(S4_axis_degree == 100)
+        {
+          S4_axis_degree +=0;
+        }
+     }
+  
         S1_axis_degree = min(180, max(0, S1_axis_degree));  // Ustawienie w jakim zakresie kątowym poruszają się serwomechanizmy
         S2_axis_degree = min(120, max(0, S2_axis_degree));
         S3_axis_degree = min(120, max(0, S3_axis_degree));
-        S4_axis_degree = min(120, max(0, S4_axis_degree)); 
+        S4_axis_degree = min(170, max(100, S4_axis_degree)); 
 
         lastmillis = millis(); 
 
@@ -207,6 +269,7 @@ class Control
           lcd.print(S4_axis_degree);
         } 
       }
+      
         servo1.write(S1_axis_degree); // Serwomechanizmy wykonują ruch do danej pozycji
         servo2.write(S2_axis_degree);
         servo3.write(S3_axis_degree);
@@ -216,6 +279,35 @@ class Control
         EEPROM.put(adres[1], S2_axis_degree);
         EEPROM.put(adres[2], S3_axis_degree);
         EEPROM.put(adres[3], S4_axis_degree);
+
+        if(current - lastmillis2 >= 100 && parse1 == true && parse2 == true)
+        {
+        String servo1_print = "one:" + String(S1_axis_degree);
+        Serial.println(servo1_print); // Wyświetlenie poszczególnych pozycji w porcie szeregowym
+        parse1 = false;
+        lastmillis2 = millis();
+        }
+        if(current - lastmillis3 >= 200 && parse1 == false && parse2 == true)
+        {
+        String servo2_print = "two:" + String(S2_axis_degree);
+        Serial.println(servo2_print);
+        parse2 = false;
+        lastmillis3 = millis();
+        }
+        if(current - lastmillis4 >= 300 && parse1 == false && parse2 == false)
+        {
+        String servo3_print = "three:" + String(S3_axis_degree);
+        Serial.println(servo3_print);
+        parse1 = true;
+        lastmillis4 = millis();
+        }
+        if(current - lastmillis5 >= 400 && parse1 == true && parse2 == false)
+        {
+        String servo4_print = "four:" + String(S4_axis_degree);
+        Serial.println(servo4_print);
+        parse2 = true;
+        lastmillis5 = millis();
+        }
     }
     else
     {
@@ -236,46 +328,6 @@ class Control
     EEPROM.get(adres[1], S2_axis_degree);
     EEPROM.get(adres[2], S3_axis_degree);
     EEPROM.get(adres[3], S4_axis_degree);
-  }
-
-  void basePosition_1(int s_axis_degree)  // Metoda odpowiadająca za ustawienie pierwszego serwa do pozycji bazowej
-  {
-     if(expander2.digitalRead(0) == LOW && expander2.digitalRead(1) == LOW) 
-     {
-      // Serwo 1
-       if(s_axis_degree < 90)
-       {
-         s_axis_degree +=5;
-       }
-       if(s_axis_degree > 90)
-       {
-         s_axis_degree-=5;
-       }
-       if(s_axis_degree == 90)
-       {
-         s_axis_degree +=0;
-       }
-     }
-  }
-
-    void basePosition_2(int s_axis_degree)  // Metoda odpowiadająca za ustawienie pozostałych serw do pozycji bazowej
-  {
-     if(expander2.digitalRead(0) == LOW && expander2.digitalRead(1) == LOW) 
-     {
-      // Serwo 1
-       if(s_axis_degree < 60)
-       {
-         s_axis_degree +=5;
-       }
-       if(s_axis_degree > 60)
-       {
-         s_axis_degree-=5;
-       }
-       if(s_axis_degree == 60)
-       {
-         s_axis_degree +=0;
-       }
-     }
   }
   
   void piezzo()
